@@ -141,7 +141,7 @@ MetroFlow/
 ## 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/MetroFlow.git
+git clone https://github.com/parthiv-doraswamy/MetroFlow.git
 ```
 
 ---
