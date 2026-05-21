@@ -201,6 +201,13 @@ OR use:
 - VS Code Live Server Extension
 
 ---
+# 📸 Project Preview
+
+## MetroFlow Dashboard
+
+![MetroFlow UI](dashboard.png)
+
+Interactive metro route visualization with shortest-path computation, BFS traversal animation, and real-time graph rendering.
 
 # 📸 Project Preview
 
