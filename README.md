@@ -236,7 +236,6 @@ Interactive metro route visualization with shortest-path computation, BFS traver
 
 - Real Hyderabad Metro Station Integration
 - Nearby Reachable Station Discovery using BFS
-- GIS / OpenStreetMap Integration
 - A* Pathfinding Algorithm
 - Multi-Route Suggestions,Fare Calculation
 - Live Traffic Simulation
@@ -282,5 +281,3 @@ Interactive metro route visualization with shortest-path computation, BFS traver
 
 - LinkedIn: https://linkedin.com/in/parthiv-doraswamy-5a6351351
 ---
-
-# ⭐ If you found this project useful, consider starring the repository.
