@@ -234,15 +234,14 @@ Interactive metro route visualization with shortest-path computation, BFS traver
 
 # 📈 Future Enhancements
 
-- Real Metro Station Names
+- Real Hyderabad Metro Station Integration
+- Nearby Reachable Station Discovery using BFS
 - GIS / OpenStreetMap Integration
 - A* Pathfinding Algorithm
-- Multi-Route Suggestions
-- Fare Calculation
+- Multi-Route Suggestions,Fare Calculation
 - Live Traffic Simulation
 - Train Movement Animation
-- MongoDB Route Persistence
-- AI-Based Route Recommendation
+- Deployment using Vercel / Render
 
 ---
 
@@ -274,20 +273,6 @@ Interactive metro route visualization with shortest-path computation, BFS traver
   ]
 }
 ```
-
----
-
-# 📄 Resume Description
-
-### MetroFlow – Smart Route Planner
-
-**C++, Node.js, JavaScript, Graph Algorithms, HTML, CSS**
-
-- Built a full-stack metro route planner integrating a Node.js backend with native C++ graph algorithms.
-- Implemented Dijkstra’s Algorithm and BFS in C++ using STL, priority queues, and adjacency lists for optimized shortest-path computation.
-- Developed REST APIs in Express.js to dynamically execute C++ route computation and return optimized paths.
-- Designed an interactive frontend visualization system using JavaScript and Vis.js for graph traversal and route mapping.
-- Engineered scalable graph architecture supporting dynamic node traversal, distance calculation, and route highlighting.
 
 ---
 

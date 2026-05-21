@@ -32,6 +32,12 @@ body{
     color:#94a3b8;
 }
 
+.status{
+    margin-top:10px;
+    color:#22c55e;
+    font-size:14px;
+}
+
 .input-group{
     margin-top:25px;
 }
@@ -66,6 +72,7 @@ button{
 
 button:hover{
     opacity:0.9;
+    transform:translateY(-2px);
 }
 
 .card{
@@ -104,5 +111,16 @@ button:hover{
 
     #network{
         height:70vh;
+    }
+}
+
+@media(max-width:600px){
+
+    .sidebar h1{
+        font-size:28px;
+    }
+
+    button{
+        font-size:14px;
     }
 }

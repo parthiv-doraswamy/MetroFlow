@@ -1,218 +1,21 @@
-const stations = [
-  "A","B","C","D","E",
-  "F","G","H","I","J",
-  "K","L","M","N","O",
-  "P","Q","R","S","T",
-  "U","V","W","X","Y"
-];
+sourceSelect.value = "A";
+destinationSelect.value = "T";
 
-const edges = [
-
-  ["A","B",4],
-  ["A","C",2],
-  ["B","D",5],
-  ["C","D",8],
-  ["C","E",10],
-  ["D","F",6],
-  ["E","F",3],
-  ["F","G",1],
-  ["G","H",2],
-  ["H","I",4],
-  ["I","J",6],
-  ["J","K",5],
-  ["K","L",3],
-  ["L","M",7],
-  ["M","N",4],
-  ["N","O",2],
-  ["O","P",5],
-  ["P","Q",6],
-  ["Q","R",4],
-  ["R","S",3],
-  ["S","T",2],
-  ["T","U",7],
-  ["U","V",5],
-  ["V","W",4],
-  ["W","X",6],
-  ["X","Y",2],
-
-  ["D","H",5],
-  ["G","L",8],
-  ["K","P",7],
-  ["M","T",9],
-  ["B","G",6],
-  ["E","J",7],
-  ["P","U",5]
-];
-
-/* GRAPH */
-
-const graph = {};
-
-stations.forEach((station) => {
-  graph[station] = [];
-});
-
-edges.forEach(([u,v,w]) => {
-
-  graph[u].push({
-    node:v,
-    weight:w
-  });
-
-  graph[v].push({
-    node:u,
-    weight:w
-  });
-});
-
-/* DROPDOWNS */
-
-const sourceSelect =
-document.getElementById("source");
-
-const destinationSelect =
-document.getElementById("destination");
-
-stations.forEach((station) => {
-
-  const option1 =
-  document.createElement("option");
-
-  option1.value = station;
-  option1.textContent = station;
-
-  sourceSelect.appendChild(option1);
-
-  const option2 =
-  document.createElement("option");
-
-  option2.value = station;
-  option2.textContent = station;
-
-  destinationSelect.appendChild(option2);
-});
-
-/* VIS NETWORK */
-
-const nodes = new vis.DataSet(
-
-  stations.map((station) => ({
-
-    id:station,
-    label:station,
-
-    color:{
-      background:"#38bdf8",
-      border:"#0ea5e9"
-    },
-
-    font:{
-      color:"#ffffff",
-      size:16
-    },
-
-    size:22
-  }))
-);
-
-const visEdges = new vis.DataSet(
-
-  edges.map(([u,v,w]) => ({
-
-    from:u,
-    to:v,
-
-    label:String(w),
-
-    color:{
-      color:"#475569"
-    },
-
-    font:{
-      color:"#cbd5e1",
-      size:14
-    },
-
-    width:2
-  }))
-);
-
-const container =
-document.getElementById("network");
-
-const data = {
-  nodes:nodes,
-  edges:visEdges
-};
-
-const options = {
-
-  physics:{
-    enabled:true,
-    stabilization:true
-  },
-
-  interaction:{
-    hover:true
-  },
-
-  nodes:{
-    shape:"dot"
-  },
-
-  edges:{
-    smooth:{
-      type:"dynamic"
-    }
-  }
-};
-
-const network =
-new vis.Network(
-  container,
-  data,
-  options
-);
-
-/* RESET */
-
-function resetGraph(){
-
-  nodes.forEach((node) => {
-
-    nodes.update({
-
-      id:node.id,
-
-      color:{
-        background:"#38bdf8",
-        border:"#0ea5e9"
-      }
-    });
-  });
-
-  visEdges.forEach((edge) => {
-
-    visEdges.update({
-
-      id:edge.id,
-
-      color:{
-        color:"#475569"
-      },
-
-      width:2
-    });
-  });
-}
-
-/* FIND PATH */
+/* ROUTE */
 
 document
 .getElementById("findPathBtn")
 .addEventListener("click", async () => {
 
   resetGraph();
+
+  const button =
+  document.getElementById(
+    "findPathBtn"
+  );
+
+  button.textContent =
+  "Finding Route...";
 
   const source =
   sourceSelect.value;
@@ -225,6 +28,9 @@ document
     alert(
       "Source and destination cannot be same."
     );
+
+    button.textContent =
+    "Find Shortest Path";
 
     return;
   }
@@ -241,7 +47,8 @@ document
         method:"POST",
 
         headers:{
-          "Content-Type":"application/json"
+          "Content-Type":
+          "application/json"
         },
 
         body:JSON.stringify({
@@ -253,6 +60,13 @@ document
 
     const result =
     await response.json();
+
+    if(result.error){
+
+      alert(result.error);
+
+      return;
+    }
 
     document
     .getElementById("pathText")
@@ -269,6 +83,46 @@ document
     .textContent =
     (result.distance * 2)
     + " mins";
+
+    function calculateFare(distance){
+
+      if(distance <= 10){
+        return 20;
+      }
+
+      if(distance <= 25){
+        return 35;
+      }
+
+      return 50;
+    }
+
+    const fare =
+    calculateFare(
+      result.distance
+    );
+
+    document
+    .getElementById("fareText")
+    .textContent =
+    "₹" + fare;
+
+    const transfers =
+    Math.max(
+      result.path.length - 2,
+      0
+    );
+
+    document
+    .getElementById("transferText")
+    .textContent =
+    transfers;
+
+    document
+    .getElementById("timeStampText")
+    .textContent =
+    new Date()
+    .toLocaleTimeString();
 
     result.path.forEach((node) => {
 
@@ -289,9 +143,11 @@ document
       i++
     ){
 
-      const a = result.path[i];
+      const a =
+      result.path[i];
 
-      const b = result.path[i+1];
+      const b =
+      result.path[i+1];
 
       visEdges.forEach((edge) => {
 
@@ -324,9 +180,15 @@ document
       });
     }
 
+    button.textContent =
+    "Find Shortest Path";
+
   }catch(error){
 
     console.error(error);
+
+    button.textContent =
+    "Find Shortest Path";
 
     alert(
       "Backend connection failed."
@@ -348,7 +210,8 @@ function bfs(start){
 
   while(queue.length > 0){
 
-    const current = queue.shift();
+    const current =
+    queue.shift();
 
     order.push(current);
 
@@ -356,9 +219,13 @@ function bfs(start){
 
       if(!visited.has(neighbor.node)){
 
-        visited.add(neighbor.node);
+        visited.add(
+          neighbor.node
+        );
 
-        queue.push(neighbor.node);
+        queue.push(
+          neighbor.node
+        );
       }
     });
   }
@@ -366,7 +233,7 @@ function bfs(start){
   return order;
 }
 
-/* BFS VISUALIZATION */
+/* NEARBY STATIONS */
 
 document
 .getElementById("bfsBtn")
@@ -379,6 +246,11 @@ document
 
   const order =
   bfs(source);
+
+  document
+  .getElementById("nearbyText")
+  .textContent =
+  order.slice(1,6).join(", ");
 
   order.forEach((node,index) => {
 
@@ -394,6 +266,41 @@ document
         }
       });
 
-    },index * 350);
+    },index * 300);
   });
 });
+
+/* BACKEND STATUS */
+
+async function checkBackend(){
+
+  try{
+
+    const response =
+    await fetch(
+      "http://localhost:3000"
+    );
+
+    const data =
+    await response.json();
+
+    document
+    .getElementById("serverStatus")
+    .textContent =
+    data.status;
+
+  }catch{
+
+    document
+    .getElementById("serverStatus")
+    .textContent =
+    "Backend Offline";
+
+    document
+    .getElementById("serverStatus")
+    .style.color =
+    "#ef4444";
+  }
+}
+
+checkBackend();

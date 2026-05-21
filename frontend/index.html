@@ -27,14 +27,16 @@
 
 <div class="container">
 
-  <!-- SIDEBAR -->
-
   <div class="sidebar">
 
     <h1>🚇 MetroFlow</h1>
 
     <p class="subtitle">
       Smart Route Planner
+    </p>
+
+    <p class="status" id="serverStatus">
+      Backend Status: Checking...
     </p>
 
     <div class="input-group">
@@ -62,7 +64,7 @@
     </button>
 
     <button id="bfsBtn">
-      Visualize BFS
+      Find Nearby Stations
     </button>
 
     <div class="card">
@@ -89,9 +91,39 @@
 
     </div>
 
-  </div>
+    <div class="card">
 
-  <!-- GRAPH -->
+      <h3>Estimated Fare</h3>
+
+      <p id="fareText">--</p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>Transfers</h3>
+
+      <p id="transferText">--</p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>Nearby Stations</h3>
+
+      <p id="nearbyText">--</p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>🕒 Last Computed</h3>
+
+      <p id="timeStampText">--</p>
+
+    </div>
+
+  </div>
 
   <div class="graph-area">
 
