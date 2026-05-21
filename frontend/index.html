@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>MetroFlow</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+  <script
+    src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js">
+  </script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+
+  <div class="sidebar">
+
+    <h1>🚇 MetroFlow</h1>
+
+    <p class="subtitle">
+      Smart Route Planner
+    </p>
+
+    <div class="input-group">
+
+      <label>
+        Source Station
+      </label>
+
+      <select id="source"></select>
+
+    </div>
+
+    <div class="input-group">
+
+      <label>
+        Destination Station
+      </label>
+
+      <select id="destination"></select>
+
+    </div>
+
+    <button id="findPathBtn">
+      Find Shortest Path
+    </button>
+
+    <button id="bfsBtn">
+      Visualize BFS
+    </button>
+
+    <div class="card">
+
+      <h3>Shortest Route</h3>
+
+      <p id="pathText">--</p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>Total Distance</h3>
+
+      <p id="distanceText">--</p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>Estimated Time</h3>
+
+      <p id="timeText">--</p>
+
+    </div>
+
+  </div>
+
+  <!-- GRAPH -->
+
+  <div class="graph-area">
+
+    <div id="network"></div>
+
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

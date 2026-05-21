@@ -1,0 +1,18 @@
+# Node modules
+node_modules/
+
+# Mac files
+.DS_Store
+
+# Logs
+npm-debug.log
+
+# Executables
+*.exe
+metro
+
+# VS Code
+.vscode/
+
+# Environment files
+.env
