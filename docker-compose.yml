@@ -1,0 +1,8 @@
+services:
+  metroflow:
+    build: .
+    ports:
+      - "5187:5187"
+    environment:
+      PORT: 5187
+      CPP_ENGINE_PATH: /app/cpp-engine/build/metro_engine

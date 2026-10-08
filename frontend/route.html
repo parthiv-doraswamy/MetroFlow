@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Route details — MetroFlow</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div><h1>MetroFlow</h1><p>Route details</p></div>
+    </div>
+    <nav class="nav-links">
+      <span class="engine-pill" id="engineStatus">C++ engine</span>
+      <a href="index.html">Planner</a>
+      <a href="route.html" class="active">Route details</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <section class="card planner">
+    <h2>Best route</h2>
+    <p class="sub">A shareable view of a route from the MetroFlow planner.</p>
+    <div class="field"><label>Summary</label><div id="routeSummary" style="font-size:14px;color:#4b5563;">Loading&hellip;</div></div>
+    <div class="alert" id="alert"></div>
+    <div id="resultEmpty" style="display:none;color:#6b7280;font-size:14px;">Open this page from a route in the <a href="index.html">planner</a>, or add <code>?from=1&amp;to=16</code> to the URL.</div>
+    <div id="resultBody"></div>
+    <div class="row-actions" style="margin-top:16px;">
+      <a class="btn btn-ghost" href="index.html" style="text-decoration:none;text-align:center;">Back to planner</a>
+    </div>
+  </section>
+</main>
+<script src="js/api.js"></script>
+<script src="js/route.js"></script>
+</body>
+</html>

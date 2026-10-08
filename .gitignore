@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+cpp-engine/build/
+backend/.env
+
+# OS / editor
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# Docker
+.dockerignore

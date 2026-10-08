@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MetroFlow — Smart Metro Navigation</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div><h1>MetroFlow</h1><p>Meridian City Metro</p></div>
+    </div>
+    <nav class="nav-links">
+      <span class="engine-pill" id="engineStatus">Checking route service&hellip;</span>
+      <a href="index.html" class="active">Planner</a>
+      <a href="route.html" id="routeDetailsLink">Route details</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <div class="hero">
+    <section class="card planner">
+      <h2>Plan your journey</h2>
+      <p class="sub">Find a route, compare travel options and see every stop along the way.</p>
+      <div class="field">
+        <label for="fromInput">From</label>
+        <input id="fromInput" type="text" placeholder="Type a station, e.g. Central" autocomplete="off" />
+        <div class="suggest" id="fromSuggest" style="display:none;"></div>
+      </div>
+      <div class="field">
+        <label for="toInput">To</label>
+        <input id="toInput" type="text" placeholder="Type a station, e.g. Skylink Airport" autocomplete="off" />
+        <div class="suggest" id="toSuggest" style="display:none;"></div>
+      </div>
+      <div class="mode-row">
+        <label for="routeMode">Route preference</label>
+        <select id="routeMode">
+          <option value="distance">Shortest distance</option>
+          <option value="time">Fastest travel time</option>
+        </select>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-primary" id="findBtn">Find Route</button>
+        <button class="btn btn-ghost" id="swapBtn" title="Swap source and destination">&#8646;</button>
+      </div>
+      <div class="alert" id="alert"></div>
+      <div class="hint">Tip: press <strong>Enter</strong> to search. Use arrow keys in suggestions.</div>
+      <div id="resultEmpty" style="margin-top:16px;color:#6b7280;font-size:14px;">No route yet &mdash; pick two stations to see distance, time, fare and every stop.</div>
+      <div id="resultBody" style="margin-top:8px;"></div>
+    </section>
+    <section class="card map-card">
+      <h3>Metro network map</h3>
+      <p>The route is highlighted directly on the metro network.</p>
+      <div class="map-toolbar">
+        <div class="map-toolbar-label"><span class="map-live-dot"></span><span id="mapStatus">Network overview</span></div>
+        <div class="map-controls" aria-label="Map controls">
+          <button type="button" id="mapZoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+          <button type="button" id="mapZoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+          <button type="button" id="mapReset" class="map-reset" title="Reset map view">Reset</button>
+        </div>
+      </div>
+      <svg id="network" role="img" aria-label="Metro network map"></svg>
+      <div class="legend" id="mapLegend"></div>
+    </section>
+  </div>
+  <div class="grid-2 section">
+    <section class="card list">
+      <h3>Nearby stations</h3>
+      <p style="margin:0 0 10px;color:#4b5563;font-size:13.5px;">See stations within a chosen number of stops.</p>
+      <div class="nearby-controls">
+        <select id="nearbyStation" aria-label="Nearby station origin"></select>
+        <select id="nearbyHops" aria-label="Max hops">
+          <option value="1">1 hop</option>
+          <option value="2" selected>2 hops</option>
+          <option value="3">3 hops</option>
+          <option value="4">4 hops</option>
+        </select>
+        <button class="btn btn-ghost" id="nearbyBtn">Find nearby</button>
+      </div>
+      <div class="nearby-list" id="nearbyList"><div class="alert show alert-info">Choose a station and hop distance.</div></div>
+    </section>
+    <section class="card list">
+      <h3>Lines &amp; interchanges</h3>
+      <div id="linesList"></div>
+    </section>
+  </div>
+  <section class="card about section">
+    <h3>How MetroFlow works</h3>
+    <p>The project started as a C++ graph implementation and grew into a web application. Dijkstra handles weighted route searches, BFS handles nearby-station discovery, and Node.js exposes the C++ engine through a small REST API. Repeated route searches are kept in a small in-memory cache.</p>
+  </section>
+  <div class="footer">MetroFlow · Meridian City demo network · Fare values are illustrative</div>
+</main>
+<script src="js/api.js"></script>
+<script src="js/network.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
