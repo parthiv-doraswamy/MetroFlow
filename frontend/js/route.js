@@ -22,6 +22,18 @@
     }
 
     try {
+      // Validate the URL against the deployed station list before calling the route engine.
+      const stationResult = await api.stations();
+      const validIds = new Set((stationResult.stations || []).map((s) => Number(s.id)));
+      if (!validIds.has(from) || !validIds.has(to)) {
+        $('routeSummary').textContent = 'This route is no longer available.';
+        $('alert').className = 'alert show alert-error';
+        $('alert').textContent = 'The station IDs in this link are not valid for the current MetroFlow network.';
+        $('resultEmpty').style.display = 'block';
+        $('resultEmpty').innerHTML = 'Please return to the <a href="index.html">planner</a> and choose the stations again.';
+        return;
+      }
+
       const health = await api.health();
       $('engineStatus').textContent = `${health.stations} stations · engine online`;
       const route = await api.route(from, to, mode);
