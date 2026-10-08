@@ -18,14 +18,31 @@ window.MetroMap = (() => {
   let zoom = 1;
   let center = { x: VIEW_W / 2, y: VIEW_H / 2 };
 
+  // Visual-only fallback topology for cases where the network endpoint is unavailable.
+  // Routing itself still comes from the C++ graph engine.
+  const FALLBACK_EDGES = [
+    [1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],
+    [10,11],[11,12],[12,5],[5,13],[13,14],[14,15],[15,16],
+    [17,18],[18,19],[19,3],[3,20],[20,21],[21,22],[22,23],
+    [24,25],[25,26],[26,13],[13,27],[27,28],[28,29],[29,30],
+    [4,19],[6,20],[12,26],[7,28],[14,28]
+  ].map(([from, to]) => ({ from, to }));
+
   async function ensureEdges() {
     if (edges.length) return;
     try {
       const n = await api.network();
-      edges = n.edges || [];
-    } catch {
-      edges = [];
+      const remoteEdges = Array.isArray(n.edges) ? n.edges : [];
+      if (remoteEdges.length) {
+        edges = remoteEdges;
+        return;
+      }
+    } catch (error) {
+      console.warn('MetroFlow network API unavailable; using visual fallback topology.', error);
     }
+    edges = FALLBACK_EDGES.slice();
+    const status = document.getElementById('mapStatus');
+    if (status) status.textContent = 'Metro network · offline fallback';
   }
 
   function lineColor(line) {
