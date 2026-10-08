@@ -131,8 +131,8 @@ window.MetroMap = (() => {
     const activeLayer = el('g');
 
     edges.forEach((e) => {
-      const a = coords.get(e.from), b = coords.get(e.to);
-      const from = byId.get(e.from), to = byId.get(e.to);
+      const a = coords.get(Number(e.from)), b = coords.get(Number(e.to));
+      const from = byId.get(Number(e.from)), to = byId.get(Number(e.to));
       if (!a || !b || !from || !to) return;
 
       const key = edgeKey(e.from, e.to);
@@ -269,7 +269,7 @@ window.MetroMap = (() => {
 
     createDefs(svg);
     renderBackground(svg);
-    const byId = new Map(stations.map((s) => [s.id, s]));
+    const byId = new Map(stations.map((s) => [Number(s.id), s]));
     renderEdges(svg, byId);
     renderStations(svg, byId);
     renderOverlay(svg);
@@ -305,11 +305,20 @@ window.MetroMap = (() => {
   }
 
   async function init(stationList, edgeList) {
-    stations = stationList || [];
-    if (edgeList) edges = edgeList;
-    else await ensureEdges();
+    stations = Array.isArray(stationList) ? stationList : [];
+    if (Array.isArray(edgeList)) {
+      edges = edgeList;
+      attachControls();
+      render();
+      return;
+    }
+
+    // Render the station layer immediately so a slow/failed network request
+    // never leaves the map as a completely blank panel.
     attachControls();
     render();
+    const loaded = await ensureEdges();
+    if (loaded) render();
   }
 
   function highlight(path) {
