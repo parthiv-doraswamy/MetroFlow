@@ -1,189 +1,484 @@
-# MetroFlow
+# MetroFlow 🚇
 
-MetroFlow is a metro route planner built around a C++ graph engine, a small Node.js API, and a vanilla JavaScript frontend.
+A full-stack metro route planner built around a **C++ graph engine**, a **Node.js/Express API**, and a lightweight **HTML/CSS/JavaScript frontend**.
 
-I built it incrementally: first the graph algorithms, then a CLI C++ engine, then the Node.js integration, and finally the web interface and route cache.
+MetroFlow models a fictional metro network for **Meridian City** and demonstrates how graph algorithms can power a real-world route-planning application.
 
-## Features
+> **Note:** The metro stations, routes, fares, and network data are fictional demo data and are not official transit information.
 
-- Shortest-distance route using Dijkstra's algorithm
-- Fastest-time route using the same Dijkstra implementation with time as the edge weight
-- Nearby-station search using BFS
-- Route distance, travel time and demo fare calculation
-- Multiple metro lines and interchange stations
-- SVG network map with the selected route highlighted
-- In-memory LRU cache for repeated route requests
-- REST API between the frontend and C++ engine
+**Live Demo:** https://metroflow-xoen.onrender.com
 
-The metro network is fictional sample data for Meridian City and is not official transit data.
+---
 
-## Architecture
+## ✨ Features
 
-```text
-Frontend (HTML/CSS/JavaScript)
-              |
-              v
-       Node.js + Express
-              |
-        Route LRU Cache
-              |
-          cache miss
-              v
-        C++ Graph Engine
-          /          \
-     Dijkstra        BFS
-```
+- 🚉 Station search with autocomplete
+- 🧭 Shortest-distance route planning
+- ⚡ Fastest-time route planning
+- 🗺️ Interactive SVG metro network map
+- 📍 Route highlighting on the network
+- 🔄 Interchange and transfer detection
+- 📊 Distance, travel time, stops, and fare information
+- 🔎 Nearby-station discovery using BFS
+- 💾 Manual in-memory LRU cache for repeated route requests
+- 🔌 JSON communication between Node.js and the C++ engine
+- 🐳 Docker and Docker Compose support
+- ☁️ Render deployment
 
-The C++ executable accepts one JSON request on stdin and returns one JSON response on stdout. Node.js uses that interface for routing, station data and the network map.
+---
 
-## Algorithms
+## 🧱 Architecture
 
-### Dijkstra
+~~~text
+┌──────────────────────────────────────────────┐
+│                  Frontend                    │
+│          HTML + CSS + JavaScript             │
+│                                              │
+│ Planner · Search · Route Details · Map       │
+└──────────────────────┬───────────────────────┘
+                       │ REST / JSON
+                       ▼
+┌──────────────────────────────────────────────┐
+│              Node.js + Express               │
+│                                              │
+│ API Routes · Validation · Enrichment         │
+│ Manual LRU Cache · C++ Engine Bridge        │
+└──────────────────────┬───────────────────────┘
+                       │ cache miss
+                       ▼
+┌──────────────────────────────────────────────┐
+│                C++ Engine                    │
+│                                              │
+│ Graph · Dijkstra · BFS · Fare Calculation   │
+│ Station Data · Network Data                 │
+└──────────────────────────────────────────────┘
+~~~
 
-The metro network is stored as an adjacency list. A min-priority queue is used to select the next station with the smallest known cost.
+### Route request flow
 
-- Distance mode: edge weight = distance
-- Time mode: edge weight = travel time
-- Complexity: `O((V + E) log V)`
+1. The frontend sends source, destination, and routing mode to Express.
+2. Node.js checks the in-memory LRU cache.
+3. On a cache hit, the stored result is returned immediately.
+4. On a cache miss, Node.js launches the C++ executable.
+5. A JSON request is written to the C++ process through stdin.
+6. The C++ engine runs Dijkstra on the weighted graph.
+7. The engine returns a JSON response through stdout.
+8. Node.js enriches the result with station names, lines, and transfers.
+9. The frontend renders the route and highlights it on the network map.
 
-The parent map is used to reconstruct the final station path.
+---
 
-### BFS
+## 🧠 Algorithms
 
-BFS is used for nearby stations when the user specifies a maximum number of stops (hops).
+### Dijkstra's Algorithm
 
-- Complexity: `O(V + E)`
+The metro network is represented using an **adjacency list**.
 
-### Route cache
+Each edge stores:
 
-The Node.js layer keeps up to 50 recent route results in an in-memory LRU cache. The cache key includes source, destination and routing mode.
+- Distance
+- Travel time
 
-## Project structure
+The same Dijkstra implementation supports two routing modes:
 
-```text
-MetroFlow/
-├── cpp-engine/
-│   ├── include/
-│   ├── src/
-│   ├── data/
-│   ├── CMakeLists.txt
-│   └── Makefile
-├── backend/
-│   ├── routes/
-│   ├── services/
-│   ├── server.js
-│   └── package.json
-├── frontend/
-│   ├── index.html
-│   ├── route.html
-│   ├── css/
-│   └── js/
-├── tests/
-├── Dockerfile
-└── docker-compose.yml
-```
+| Mode | Edge Weight |
+|---|---|
+| Shortest route | Distance |
+| Fastest route | Travel time |
 
-## Run locally
+A C++ priority queue is used as the min-heap.
 
-### 1. Build the C++ engine
+**Complexity:** O((V + E) log V)
 
-```bash
-cd cpp-engine
-mkdir -p build
-cmake -S . -B build
-cmake --build build
-```
+Parent pointers are maintained so the complete station path can be reconstructed after reaching the destination.
 
-Or use:
+### BFS — Nearby Stations
 
-```bash
-make
-```
+Breadth-First Search is used for the nearby-station feature.
 
-### 2. Install backend dependencies
+BFS measures the number of station-to-station hops from the selected station.
 
-```bash
-cd ../backend
-npm install
-```
+**Complexity:** O(V + E)
 
-### 3. Start MetroFlow
+### LRU Route Cache
 
-From the project root:
+The Node.js backend contains a small manual **in-memory LRU cache**.
 
-```bash
-node backend/server.js
-```
+- Capacity: 50 route results
+- Cache key: source + destination + routing mode
+- Avoids repeated C++ calculations for identical requests
+- No Redis or external cache dependency
 
-Open `http://localhost:5187`.
+The cache is intentionally simple because MetroFlow is currently a single-service application.
 
-If the engine is in a different location, set `CPP_ENGINE_PATH`.
+---
 
-## API
+## 🗺️ Metro Network
 
-```text
-GET  /api/health
-GET  /api/stations
-GET  /api/stations/search?q=central
-GET  /api/stations/:id
-GET  /api/stations/:id/nearby?hops=2
-GET  /api/network
-POST /api/route
-```
+The current fictional network contains:
 
-Route request:
+- **30 stations**
+- **34 undirected connections**
+- **4 metro lines**
+  - Blue
+  - Green
+  - Red
+  - Yellow
+- Multiple interchange stations
 
-```json
+The graph data lives in:
+
+~~~text
+cpp-engine/data/metro_data.json
+~~~
+
+The **C++ engine is the source of truth for routing**.
+
+The frontend network map consumes the network through the API and renders the topology using SVG. A small visual fallback topology is also available so a temporary network API failure does not leave the map blank.
+
+---
+
+## 💰 Demo Fare Model
+
+Fares are calculated from total route distance.
+
+| Distance | Demo Fare |
+|---|---:|
+| 0–5 km | ₹15 |
+| 5–10 km | ₹25 |
+| 10–15 km | ₹35 |
+| 15–20 km | ₹45 |
+| 20+ km | ₹55 |
+
+This is a demonstration model only and does not represent a real transit authority's pricing.
+
+---
+
+## 📡 REST API
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | /api/health | Engine and network health |
+| GET | /api/stations | All stations |
+| GET | /api/stations/search?q=central | Search stations |
+| GET | /api/stations/:id | Station details |
+| GET | /api/stations/:id/nearby?hops=2 | Nearby stations using BFS |
+| GET | /api/network | Network stations and edges |
+| POST | /api/route | Calculate a route |
+
+### Route request
+
+~~~json
 {
   "source": 1,
   "destination": 16,
   "mode": "distance"
 }
-```
+~~~
 
-`mode` can be `distance` or `time`.
+Supported modes:
 
-## Tests
+- distance — shortest route by distance
+- time — fastest route by travel time
 
-C++ engine tests:
+---
 
-```bash
-bash tests/cpp-tests/test_engine.sh
-```
+## 📁 Project Structure
 
-API tests (with the backend running):
+~~~text
+MetroFlow/
+│
+├── cpp-engine/
+│   ├── include/
+│   │   ├── Graph.h
+│   │   ├── Json.h
+│   │   ├── Route.h
+│   │   └── Station.h
+│   ├── src/
+│   │   ├── main.cpp
+│   │   ├── Graph.cpp
+│   │   ├── Json.cpp
+│   │   ├── Route.cpp
+│   │   └── Station.cpp
+│   ├── data/
+│   │   └── metro_data.json
+│   ├── CMakeLists.txt
+│   └── Makefile
+│
+├── backend/
+│   ├── routes/
+│   │   └── metroRoutes.js
+│   ├── services/
+│   │   ├── cppEngine.js
+│   │   ├── engineBridge.js
+│   │   └── routeCache.js
+│   ├── server.js
+│   ├── package.json
+│   └── .env.example
+│
+├── frontend/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   ├── api.js
+│   │   ├── app.js
+│   │   ├── network.js
+│   │   └── route.js
+│   ├── index.html
+│   └── route.html
+│
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
+└── README.md
+~~~
 
-```bash
-PORT=5100 node tests/api-tests/test_api.js
-```
+---
 
-The API test suite covers routing, routing modes, caching, BFS, station lookup, network loading and error cases.
+## 🛠️ Tech Stack
 
-## Fare model
+### Core / Algorithms
+- C++17
+- Graphs
+- Adjacency lists
+- Dijkstra's algorithm
+- Breadth-First Search
+- STL priority queue
+- STL queue
+- STL unordered map
 
-The fare calculation is only a simple demo model:
+### Backend
+- Node.js
+- Express.js
+- REST API
+- JSON
+- Child-process based C++ integration
+- Manual LRU caching
 
-```text
-0–5 km       ₹15
-5–10 km      ₹25
-10–15 km     ₹35
-15–20 km     ₹45
-20+ km       ₹55
-```
+### Frontend
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- SVG-based network visualization
 
-## Docker
+### Build & Deployment
+- CMake
+- Make
+- Docker
+- Docker Compose
+- Render
 
-The included Dockerfile builds the C++ engine and runs the Node.js server in one container:
+---
 
-```bash
+## 🚀 Run Locally
+
+### Prerequisites
+
+Install:
+
+- Node.js 18+
+- C++17 compiler
+- CMake 3.10+
+- Make (optional)
+
+### 1. Clone the repository
+
+~~~bash
+git clone https://github.com/parthiv-doraswamy/MetroFlow.git
+cd MetroFlow
+~~~
+
+### 2. Build the C++ engine
+
+~~~bash
+cd cpp-engine
+mkdir -p build
+cmake -S . -B build
+cmake --build build
+cd ..
+~~~
+
+Or:
+
+~~~bash
+cd cpp-engine
+make
+cd ..
+~~~
+
+### 3. Install backend dependencies
+
+~~~bash
+cd backend
+npm install
+cd ..
+~~~
+
+### 4. Start MetroFlow
+
+From the project root:
+
+~~~bash
+node backend/server.js
+~~~
+
+Open:
+
+**http://localhost:5187**
+
+---
+
+## 🐳 Docker
+
+The included Dockerfile builds the C++ engine and runs the Node.js server in the same container.
+
+### Docker Compose
+
+~~~bash
 docker compose up --build
-```
+~~~
 
-Then open `http://localhost:5187`.
+Then open:
 
-## Future improvements
+**http://localhost:5187**
 
-- Minimum-transfer routing
-- Real-time transit data
-- Persistent routing service instead of starting a C++ process per request
-- Shared cache for multiple backend instances
+### Manual Docker build
+
+~~~bash
+docker build -t metroflow .
+docker run -p 5187:5187 metroflow
+~~~
+
+---
+
+## ⚙️ Configuration
+
+Supported environment variables:
+
+~~~text
+PORT
+CPP_ENGINE_PATH
+CPP_TIMEOUT_MS
+NODE_ENV
+~~~
+
+Example:
+
+~~~bash
+PORT=5187
+CPP_ENGINE_PATH=cpp-engine/build/metro_engine
+CPP_TIMEOUT_MS=5000
+NODE_ENV=development
+~~~
+
+The production Docker configuration points the backend to the compiled C++ executable inside the container.
+
+---
+
+## ☁️ Deployment
+
+MetroFlow is deployed as a **single Docker-based web service**.
+
+~~~text
+GitHub
+   ↓
+Render
+   ↓
+Docker build
+   ↓
+Compile C++ engine
+   ↓
+Start Node.js + Express
+   ↓
+Serve frontend + API
+~~~
+
+### Live application
+
+**https://metroflow-xoen.onrender.com**
+
+The application does not require a database, Redis instance, or separate C++ server.
+
+---
+
+## 🔐 Design Decisions
+
+### Why C++ for routing?
+
+The primary goal of MetroFlow is to demonstrate graph algorithms inside an actual application rather than only as isolated competitive-programming solutions.
+
+The graph, Dijkstra implementation, BFS implementation, and routing calculations therefore remain in C++.
+
+### Why Node.js?
+
+Node.js provides the web/API layer around the C++ engine and handles:
+
+- HTTP requests
+- Input validation
+- Route enrichment
+- Caching
+- Serving the frontend
+
+### Why an in-memory cache?
+
+The current application does not need Redis or a database. A small manual LRU cache is enough to demonstrate caching while keeping the architecture understandable and lightweight.
+
+### Why one Docker service?
+
+The Node.js backend and C++ engine are tightly coupled. Packaging them together keeps deployment simple and avoids unnecessary microservice complexity for a project of this size.
+
+---
+
+## 🔄 Development Approach
+
+MetroFlow was developed incrementally:
+
+~~~text
+Graph data
+    ↓
+C++ graph implementation
+    ↓
+Dijkstra + BFS
+    ↓
+C++ JSON CLI engine
+    ↓
+Node.js / Express integration
+    ↓
+Route caching + enrichment
+    ↓
+Frontend planner
+    ↓
+Interactive network visualization
+    ↓
+Dockerized deployment
+~~~
+
+This separation keeps the algorithmic core independent from the web interface while still exposing it through a usable application.
+
+---
+
+## 🔮 Future Improvements
+
+Possible next steps include:
+
+- Minimum-transfer route optimization
+- Transfer-aware routing costs
+- Real-time train/service information
+- Route comparison between distance and time
+- Persistent route analytics
+- Shared caching for multiple backend instances
+- Closed-station and unavailable-line constraints
+- More advanced map interactions
+- Automated browser end-to-end testing
+
+---
+
+## 📌 Project Highlights
+
+MetroFlow brings together:
+
+**Data Structures & Algorithms + C++ + Backend Engineering + API Design + Caching + Frontend Development + Docker Deployment**
+
+The central idea is simple:
+
+> **Take a weighted graph and a real routing algorithm, then turn it into a complete web application.**
